@@ -146,11 +146,40 @@ Uses **3-phase adaptive scheduling** (Coarse → Medium → Fine) with velocity 
 
 The toolkit generates publication-quality visualizations:
 
-- **Floorplan Layout** — Colored blocks with cell labels and net connections
-- **Thermal Heatmap** — Gaussian heat spreading from power-dense blocks
-- **Routing Congestion** — GCell congestion ratios across the chip
-- **Convergence Curves** — Cost vs. iteration with temperature overlay
-- **Design Dashboard** — 6-panel summary of all design metrics
+### Design Dashboard
+*6-panel summary: floorplan, thermal map, design metrics, convergence, congestion, and area distribution*
+
+![Design Dashboard](images/dashboard.png)
+
+### Simulated Annealing Floorplan
+*Placed macro-blocks with cell labels, net connections, and chip outline*
+
+![SA Floorplan](images/sa_floorplan.png)
+
+### PIAB-FP Floorplan (Physics-Inspired)
+*Agent-based placement result — cells spread by 5 physical forces for overlap-free layout*
+
+![PIAB Floorplan](images/piab_floorplan.png)
+
+### Thermal Heatmap
+*Gaussian heat spreading from power-dense blocks — identifies thermal hotspots*
+
+![Thermal Heatmap](images/sa_thermal.png)
+
+### Routing Congestion Map
+*GCell congestion ratios — red zones indicate routing overflow*
+
+![Congestion Map](images/congestion.png)
+
+### SA Convergence Curve
+*Cost vs. iteration with temperature overlay — shows optimization trajectory and reheat events*
+
+![SA Convergence](images/sa_convergence.png)
+
+### PIAB-FP Convergence
+*3-phase convergence: Coarse (spread) → Medium (organize) → Fine (compact)*
+
+![PIAB Convergence](images/piab_convergence.png)
 
 ---
 
