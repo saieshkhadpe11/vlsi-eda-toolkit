@@ -1,0 +1,35 @@
+{
+    "name": "example_8block",
+    "chip_width": 500,
+    "chip_height": 500,
+    "cells": [
+        {"name": "CPU_Core", "width": 120, "height": 100, "type": "hard", "power_density": 0.004},
+        {"name": "SRAM_L1", "width": 80, "height": 60, "type": "hard", "power_density": 0.002},
+        {"name": "SRAM_L2", "width": 100, "height": 80, "type": "hard", "power_density": 0.0015},
+        {"name": "DSP_Unit", "width": 90, "height": 70, "type": "hard", "power_density": 0.003},
+        {"name": "IO_Ctrl", "width": 60, "height": 50, "type": "soft", "power_density": 0.001},
+        {"name": "PLL", "width": 40, "height": 40, "type": "hard", "power_density": 0.002},
+        {"name": "DMA_Ctrl", "width": 70, "height": 55, "type": "soft", "power_density": 0.0012},
+        {"name": "Bus_Fabric", "width": 110, "height": 45, "type": "soft", "power_density": 0.0008},
+        {"name": "PAD_N", "width": 5, "height": 5, "type": "io", "fixed": true, "x": 250, "y": 495},
+        {"name": "PAD_S", "width": 5, "height": 5, "type": "io", "fixed": true, "x": 250, "y": 0},
+        {"name": "PAD_E", "width": 5, "height": 5, "type": "io", "fixed": true, "x": 495, "y": 250},
+        {"name": "PAD_W", "width": 5, "height": 5, "type": "io", "fixed": true, "x": 0, "y": 250}
+    ],
+    "nets": [
+        {"name": "clk", "pins": [["PLL", "out"], ["CPU_Core", "clk"], ["DSP_Unit", "clk"], ["DMA_Ctrl", "clk"]], "weight": 2.0, "clock": true},
+        {"name": "cpu_l1", "pins": [["CPU_Core", "cache"], ["SRAM_L1", "port"]], "weight": 1.8},
+        {"name": "cpu_l2", "pins": [["CPU_Core", "mem"], ["SRAM_L2", "port"]], "weight": 1.5},
+        {"name": "cpu_dsp", "pins": [["CPU_Core", "dsp_if"], ["DSP_Unit", "ctrl"]], "weight": 1.3},
+        {"name": "cpu_bus", "pins": [["CPU_Core", "bus"], ["Bus_Fabric", "master"]], "weight": 1.5},
+        {"name": "dsp_bus", "pins": [["DSP_Unit", "bus"], ["Bus_Fabric", "slave1"]], "weight": 1.0},
+        {"name": "dma_bus", "pins": [["DMA_Ctrl", "bus"], ["Bus_Fabric", "slave2"]], "weight": 1.0},
+        {"name": "io_bus", "pins": [["IO_Ctrl", "bus"], ["Bus_Fabric", "slave3"]], "weight": 1.0},
+        {"name": "l2_bus", "pins": [["SRAM_L2", "bus_port"], ["Bus_Fabric", "mem"]], "weight": 1.2},
+        {"name": "dma_l2", "pins": [["DMA_Ctrl", "mem"], ["SRAM_L2", "dma_port"]], "weight": 1.0},
+        {"name": "io_pad_n", "pins": [["IO_Ctrl", "pad_n"], ["PAD_N", "sig"]], "weight": 0.8},
+        {"name": "io_pad_s", "pins": [["IO_Ctrl", "pad_s"], ["PAD_S", "sig"]], "weight": 0.8},
+        {"name": "cpu_pad_e", "pins": [["CPU_Core", "ext"], ["PAD_E", "sig"]], "weight": 0.8},
+        {"name": "dsp_pad_w", "pins": [["DSP_Unit", "ext"], ["PAD_W", "sig"]], "weight": 0.8}
+    ]
+}
