@@ -66,7 +66,7 @@ vlsi-eda-toolkit/
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/vlsi-eda-toolkit.git
+git clone https://github.com/saieshkhadpe11/vlsi-eda-toolkit.git
 cd vlsi-eda-toolkit
 pip install -r requirements.txt
 ```
