@@ -5,7 +5,7 @@
 A comprehensive, from-scratch implementation of core EDA (Electronic Design Automation) algorithms for VLSI physical design. Built for research, education, and algorithmic exploration.
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ---
 
@@ -215,7 +215,7 @@ This project demonstrates understanding of:
 
 ## 📜 License
 
-MIT License — see [LICENSE](LICENSE) for details.
+GPL-3.0 License — see [LICENSE](LICENSE) for details. This means you can use, study, and modify this code, but any derivative work must also be open-sourced under the same license and must credit the original author.
 
 ---
 
