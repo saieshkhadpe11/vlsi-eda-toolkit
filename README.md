@@ -7,6 +7,7 @@ A comprehensive, from-scratch implementation of core EDA (Electronic Design Auto
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18693046.svg)](https://doi.org/10.5281/zenodo.18693046)
+[![Paper](https://zenodo.org/badge/DOI/10.5281/zenodo.18694705.svg)](https://doi.org/10.5281/zenodo.18694705)
 
 ---
 
@@ -218,9 +219,34 @@ This project demonstrates understanding of:
 
 ## 🔖 Cite This Project
 
-If you use this toolkit in your research or coursework, please cite it using the DOI:
+This project has two citable records on Zenodo:
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18693046.svg)](https://doi.org/10.5281/zenodo.18693046)
+| Type | DOI |
+|------|-----|
+| 📦 **Software** (code) | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18693046.svg)](https://doi.org/10.5281/zenodo.18693046) |
+| 📄 **Paper** (preprint) | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18694705.svg)](https://doi.org/10.5281/zenodo.18694705) |
+
+### Cite the Paper (recommended for academic use)
+
+**BibTeX:**
+
+```bibtex
+@techreport{khadpe_2026_vlsi_eda_paper,
+  author       = {Khadpe, Saiesh},
+  title        = {VLSI EDA Toolkit: A Python Framework for Physical Design
+                  Automation with a Novel Physics-Inspired Agent-Based Floorplanner},
+  year         = {2026},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.18694705},
+  url          = {https://doi.org/10.5281/zenodo.18694705}
+}
+```
+
+**APA:**
+
+> Khadpe, S. (2026). *VLSI EDA Toolkit: A Python Framework for Physical Design Automation with a Novel Physics-Inspired Agent-Based Floorplanner* [Technical Report]. Zenodo. https://doi.org/10.5281/zenodo.18694705
+
+### Cite the Software
 
 **BibTeX:**
 
@@ -235,10 +261,6 @@ If you use this toolkit in your research or coursework, please cite it using the
   url          = {https://doi.org/10.5281/zenodo.18693046}
 }
 ```
-
-**APA:**
-
-> Khadpe, S. (2026). *VLSI EDA Toolkit: A Python-Based Physical Design Automation Framework* (v1.0.0) [Software]. Zenodo. https://doi.org/10.5281/zenodo.18693046
 
 ---
 
