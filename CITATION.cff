@@ -1,0 +1,53 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "VLSI EDA Toolkit"
+abstract: >-
+  A Python-based VLSI Physical Design Automation Framework implementing the
+  complete VLSI physical design flow: netlist parsing, floorplanning
+  (Simulated Annealing + Physics-Inspired Agent-Based PIAB-FP), A*-based
+  global routing, Static Timing Analysis, and publication-quality
+  visualization. Built for research, education, and algorithmic exploration
+  of core EDA algorithms.
+authors:
+  - family-names: "Khadpe"
+    given-names: "Saiesh"
+    alias: "saieshkhadpe11"
+    orcid: ""  # Add your ORCID iD here if you have one: https://orcid.org
+version: "1.0.0"
+date-released: "2026-02-19"
+license: GPL-3.0
+url: "https://github.com/saieshkhadpe11/vlsi-eda-toolkit"
+repository-code: "https://github.com/saieshkhadpe11/vlsi-eda-toolkit"
+keywords:
+  - VLSI
+  - EDA
+  - physical design
+  - floorplanning
+  - simulated annealing
+  - routing
+  - static timing analysis
+  - Python
+  - electronic design automation
+  - PIAB-FP
+references:
+  - type: article
+    authors:
+      - family-names: "Shahookar"
+        given-names: "K."
+      - family-names: "Mazumder"
+        given-names: "P."
+    title: "VLSI Cell Placement Techniques"
+    journal: "ACM Computing Surveys"
+    year: 1991
+  - type: article
+    authors:
+      - family-names: "Kirkpatrick"
+        given-names: "S."
+      - family-names: "Gelatt"
+        given-names: "C. D."
+      - family-names: "Vecchi"
+        given-names: "M. P."
+    title: "Optimization by Simulated Annealing"
+    journal: "Science"
+    year: 1983

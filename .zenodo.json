@@ -1,0 +1,40 @@
+{
+  "title": "VLSI EDA Toolkit: A Python-Based Physical Design Automation Framework",
+  "description": "<p>A comprehensive, from-scratch implementation of core EDA (Electronic Design Automation) algorithms for VLSI physical design. Built for research, education, and algorithmic exploration.</p><p>The toolkit implements the <strong>complete VLSI physical design flow</strong>:</p><ul><li><strong>Netlist Parsing</strong> — Multi-format benchmark reader (MCNC, YAL, JSON, Random Generation)</li><li><strong>Floorplanning</strong> — Simulated Annealing + novel PIAB-FP (Physics-Inspired Agent-Based Floorplanner) where each cell is an autonomous agent subject to repulsive, attractive, boundary, thermal, and gravitational forces</li><li><strong>Global Routing</strong> — A*-based congestion-aware pathfinding with rip-up-and-reroute</li><li><strong>Static Timing Analysis</strong> — DAG-based forward/backward propagation, WNS/TNS, critical path tracing</li><li><strong>Visualization</strong> — Publication-quality floorplan, thermal heatmap, congestion map, and convergence plots</li></ul>",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "GPL-3.0",
+  "creators": [
+    {
+      "name": "Khadpe, Saiesh",
+      "affiliation": ""
+    }
+  ],
+  "version": "1.0.0",
+  "publication_date": "2026-02-19",
+  "keywords": [
+    "VLSI",
+    "EDA",
+    "electronic design automation",
+    "physical design",
+    "floorplanning",
+    "simulated annealing",
+    "PIAB-FP",
+    "physics-inspired",
+    "agent-based",
+    "global routing",
+    "static timing analysis",
+    "Python",
+    "CAD",
+    "MCNC benchmarks"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/saieshkhadpe11/vlsi-eda-toolkit",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ],
+  "language": "eng",
+  "notes": "This software implements the PIAB-FP algorithm — a novel Physics-Inspired Agent-Based Floorplanner for thermal-aware VLSI macro-block placement, as described in the associated research paper."
+}
