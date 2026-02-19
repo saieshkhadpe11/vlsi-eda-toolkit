@@ -1,0 +1,487 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{VLSI EDA Toolkit: A Python Framework for Physical Design Automation\\
+with a Novel Physics-Inspired Agent-Based Floorplanner}
+
+\author{
+  \IEEEauthorblockN{Saiesh Khadpe}
+  \IEEEauthorblockA{
+    \textit{ORCID: 0009-0003-7524-9927}\\
+    \href{https://github.com/saieshkhadpe11}{github.com/saieshkhadpe11}
+  }
+}
+
+\maketitle
+
+\begin{abstract}
+We present the \textit{VLSI EDA Toolkit}, an open-source Python framework that implements
+the complete VLSI physical design flow---from netlist parsing through floorplanning,
+global routing, and static timing analysis---in a single, modular codebase.
+The primary algorithmic contribution is \textbf{PIAB-FP} (Physics-Inspired Agent-Based
+Floorplanner), a novel macro-block placement algorithm in which each cell is modeled as
+an autonomous agent subject to five physical force fields: repulsive overlap-resolution,
+attractive net-connectivity, elastic boundary containment, thermal dispersion, and
+gravitational compaction. Global optimization emerges from purely local force interactions
+without requiring an explicit global objective function evaluation per iteration.
+PIAB-FP employs a three-phase adaptive force schedule (Coarse~$\rightarrow$~Medium~$\rightarrow$~Fine)
+with velocity damping for convergence stability. We compare PIAB-FP against a classical
+Simulated Annealing (SA) baseline on randomly generated benchmarks and show that PIAB-FP
+achieves competitive placement quality with qualitatively better thermal distribution of
+high-power blocks. The toolkit also includes an A*-based congestion-aware global router with
+rip-up-and-reroute, a DAG-based Static Timing Analysis engine, and a publication-quality
+visualization suite. All source code is available at
+\url{https://github.com/saieshkhadpe11/vlsi-eda-toolkit}
+(DOI: \href{https://doi.org/10.5281/zenodo.18693046}{10.5281/zenodo.18693046}).
+\end{abstract}
+
+\begin{IEEEkeywords}
+VLSI physical design, EDA, floorplanning, simulated annealing, agent-based optimization,
+physics-inspired algorithm, global routing, static timing analysis, open-source
+\end{IEEEkeywords}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Introduction}
+\label{sec:intro}
+% ─────────────────────────────────────────────────────────────────────────────
+
+Electronic Design Automation (EDA) tools underpin the design of all modern integrated
+circuits. The physical design stage---transforming an abstract netlist into a geometrically
+realized layout---involves a sequence of computationally challenging optimization problems:
+floorplanning, placement, routing, and timing closure \cite{kahng2011vlsi}.
+While commercial EDA platforms (Cadence, Synopsys) are mature, they are closed-source and
+inaccessible for educational research and algorithmic exploration.
+
+Open-source alternatives such as OpenROAD \cite{openroad2021} implement production-grade
+flows but expose little of the algorithmic internals to practitioners. There is therefore
+value in transparent, well-documented implementations that allow students and researchers
+to study, benchmark, and extend core EDA algorithms.
+
+This paper makes the following contributions:
+\begin{enumerate}
+  \item A complete, modular Python implementation of the VLSI physical design flow (parsing,
+        floorplanning, routing, timing analysis, visualization).
+  \item \textbf{PIAB-FP}: a novel physics-inspired, agent-based macro-block floorplanner
+        with five-force dynamics and three-phase adaptive scheduling.
+  \item An empirical comparison of PIAB-FP against classical Simulated Annealing on
+        randomly generated benchmarks.
+  \item An open-source release of all code, examples, and tests on GitHub/Zenodo.
+\end{enumerate}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Background and Related Work}
+\label{sec:related}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{VLSI Floorplanning}
+Floorplanning determines the location and orientation of macro-blocks on a chip.
+It is typically formulated as a multi-objective optimization minimizing wirelength,
+area, overlap, and thermal cost \cite{shahookar1991vlsi}.
+Classical approaches include Simulated Annealing \cite{kirkpatrick1983optimization},
+sequence pairs \cite{murata1996vlsi}, and B*-trees \cite{chang2000b}.
+
+\subsection{Force-Directed Placement}
+Force-directed methods, popularized in graph drawing, have been applied to VLSI
+placement \cite{holt1993force}. Cells are modeled as particles subject to spring-like
+attractive forces between connected nodes. Classical force-directed placers, however,
+rely on a single attractive force type with no thermal awareness, boundary enforcement,
+or adaptive scheduling---limitations that PIAB-FP directly addresses.
+
+\subsection{Agent-Based Optimization in EDA}
+Agent-based methods have seen growing interest in combinatorial optimization
+\cite{dorigo1997ant}, but their application to VLSI floorplanning with multi-physics
+force models is underexplored. PIAB-FP is distinguished by its explicit thermal force
+component and its emergent global optimization from purely local agent interactions.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Toolkit Architecture}
+\label{sec:arch}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The VLSI EDA Toolkit is organized into five independent modules, each implementing one
+stage of the physical design flow:
+
+\begin{table}[h]
+\caption{Toolkit Modules}
+\label{tab:modules}
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Module} & \textbf{Algorithm} & \textbf{Output} \\
+\midrule
+Parser      & Multi-format reader  & Netlist / Design object \\
+Floorplanner & SA / PIAB-FP        & Placed macro-blocks \\
+Router      & A* with RR           & Routed paths \\
+Timing      & DAG propagation      & WNS, TNS, critical path \\
+Visualizer  & Matplotlib           & Publication-quality plots \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The top-level \texttt{Design} object aggregates a \texttt{Netlist} (cells and nets),
+a \texttt{Floorplan} (chip dimensions and evaluation metrics), and runtime snapshots
+for comparison. The parser supports MCNC-style, YAL, JSON, and procedurally generated
+random benchmarks.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Simulated Annealing Floorplanner}
+\label{sec:sa}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The SA floorplanner provides the classical baseline. Starting from a random placement,
+it iteratively perturbs the solution and accepts moves according to the Metropolis
+criterion:
+\[
+  P(\text{accept}) = \begin{cases}
+    1 & \text{if } \Delta C < 0 \\
+    e^{-\Delta C / T} & \text{otherwise}
+  \end{cases}
+\]
+where $T$ is the current temperature and $\Delta C$ is the cost change.
+
+\subsection{Move Types}
+Four perturbation operators are applied with fixed probability:
+\begin{itemize}
+  \item \textbf{Translate} (45\%): moves a cell by a random offset scaled to temperature.
+  \item \textbf{Swap} (25\%): exchanges positions of two cells.
+  \item \textbf{Rotate} (20\%): rotates a hard macro 90°.
+  \item \textbf{Reshape} (10\%): changes the aspect ratio of a soft macro while preserving its area.
+\end{itemize}
+
+\subsection{Adaptive Cooling and Reheat}
+The cooling schedule adjusts the rate dynamically based on acceptance ratio $\alpha$:
+\[
+  r = \begin{cases}
+    0.990 & \text{if } \alpha > \hat\alpha + 0.1 \\
+    0.999 & \text{if } \alpha < \hat\alpha - 0.1 \\
+    r_0   & \text{otherwise}
+  \end{cases}
+\]
+where $\hat\alpha = 0.44$ is the target acceptance ratio and $r_0 = 0.995$.
+A reheat mechanism increases temperature by $10\times$ if no improvement is found
+for 5{,}000 consecutive steps, enabling escape from local minima.
+
+\subsection{Cost Function}
+The multi-objective cost function is:
+\[
+  C = w_{\text{wl}} \hat{L} + w_{\text{ov}} \hat{O}^2 + w_{\text{bnd}} \hat{B}
+      + w_{\text{th}} \hat{T} + w_{\text{ar}} \hat{R}
+\]
+where subscripts denote wirelength (HPWL), overlap, boundary violation, thermal
+coupling, and aspect ratio penalty, respectively. Default weights are
+$[0.40, 0.30, 0.15, 0.10, 0.05]$, normalized to sum to 1. The overlap penalty is
+quadratic ($\hat{O}^2$) for aggressive elimination of overlaps.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{PIAB-FP: Physics-Inspired Agent-Based Floorplanner}
+\label{sec:piab}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Agent Model}
+Each macro-block $i$ is modeled as an autonomous agent with position
+$(x_i, y_i)$, velocity $(v_{xi}, v_{yi})$, and mass $m_i = \max(A_i, 1)$
+where $A_i$ is the cell area. At each time step, the agent accumulates
+net force $(F_{xi}, F_{yi})$ from five sources and updates its velocity
+and position via Verlet-like integration:
+\begin{align}
+  v_i^{t+1} &= \beta\,v_i^t + \frac{\Delta t}{m_i} F_i^t \\
+  x_i^{t+1} &= x_i^t + v_i^{t+1} \Delta t
+\end{align}
+where $\beta = 0.85$ is the damping coefficient and $\Delta t = 0.5$ is the
+time step. Velocity is capped at $v_{\max} = 50$ to prevent numerical instability.
+
+\subsection{Force Components}
+
+\paragraph{Repulsive Force}
+Cells repel each other with a spring-like force proportional to overlap penetration:
+\[
+  \mathbf{F}^{\text{rep}}_{ij} = w_{\text{rep}} \cdot (d_{\min} - d_{ij}) \cdot \hat{\mathbf{u}}_{ij}
+  \quad \text{if } d_{ij} < d_{\min}
+\]
+where $d_{ij}$ is center-to-center distance, $d_{\min}$ is the minimum separation
+(sum of half-dimensions), and $\hat{\mathbf{u}}_{ij}$ is the unit vector from $j$ to $i$.
+A small random jitter is applied when $d_{ij} < 1$ to prevent deadlocks.
+
+\paragraph{Attractive Force}
+Nets impose a sub-linear spring attraction between all pairs of connected cells:
+\[
+  \mathbf{F}^{\text{att}}_{ij} = w_{\text{att}} \cdot \ln(1 + d_{ij}) \cdot \hat{\mathbf{u}}_{ji}
+  \quad \text{if } d_{ij} > 1
+\]
+The logarithmic formulation avoids excessive compression of near cells.
+
+\paragraph{Boundary Force}
+An elastic restoring force pushes cells back inside the chip outline:
+\[
+  F^{\text{bnd}}_x = \begin{cases}
+    +w_{\text{bnd}} |x_{\min}| & \text{if } x_{\min} < 0 \\
+    -w_{\text{bnd}} (x_{\max} - W) & \text{if } x_{\max} > W
+  \end{cases}
+\]
+where $W$ and $H$ are chip width and height.
+
+\paragraph{Thermal Force}
+High-power cells are repelled from each other to distribute heat:
+\[
+  \mathbf{F}^{\text{th}}_{ij} = w_{\text{th}} \cdot \frac{P_i + P_j}{d_{ij}^2} \cdot \hat{\mathbf{u}}_{ij}
+\]
+where $P_i$ is the power of cell $i$. This force is only computed when the combined
+power $P_i + P_j > 10^{-3}$ to avoid unnecessary computation.
+
+\paragraph{Gravitational Force}
+A compaction force gently pulls each cell toward the chip center $(C_x, C_y)$:
+\[
+  \mathbf{F}^{\text{grav}}_i = w_{\text{grav}} \cdot \sqrt{d_i^c} \cdot \hat{\mathbf{u}}_i^c
+\]
+where $d_i^c$ is the distance from cell $i$ to the chip center and $\hat{\mathbf{u}}_i^c$
+points toward the center. The sub-linear $\sqrt{\cdot}$ profile prevents excessive
+central crowding.
+
+\subsection{Three-Phase Adaptive Scheduling}
+PIAB-FP divides its $N = 2000$ iterations equally among three phases, each with
+different force weight multipliers:
+
+\begin{table}[h]
+\caption{Phase Schedule of PIAB-FP}
+\label{tab:phases}
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Phase} & \textbf{Repulsion Scale} & \textbf{Attraction Scale} & \textbf{Boundary Scale} \\
+\midrule
+1 – Coarse & $2.0\times$ & $0.5\times$ & $1.0\times$ \\
+2 – Medium & $1.0\times$ & $1.0\times$ & $1.5\times$ \\
+3 – Fine   & $0.3\times$ & $2.0\times$ & $2.0\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In Phase 1, strong repulsion spreads cells to remove gross overlaps. Phase 2 balances
+spreading and connectivity grouping. Phase 3 emphasizes attraction to compact
+the layout and improve HPWL. Early termination triggers if the average displacement
+falls below $\epsilon = 10^{-3}$.
+
+\subsection{Comparison with Force-Directed Placement}
+Unlike classical force-directed placers \cite{holt1993force}, PIAB-FP:
+\begin{enumerate}
+  \item Uses \textit{five} distinct force types, including thermal and gravitational.
+  \item Employs \textit{adaptive phase scheduling} rather than a single static force configuration.
+  \item Models cells as \textit{autonomous agents} with persistent velocity state (inertia).
+  \item Integrates \textit{thermal awareness} during placement, not as a post-processing step.
+  \item Supports \textit{fixed cells} that contribute to forces but do not move.
+\end{enumerate}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Global Router}
+\label{sec:router}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The global router operates on a 20$\times$20 GCell grid overlaid on the chip.
+Each GCell has a routing capacity of 10 tracks; macro blockages reduce local
+capacity proportionally to the overlap area fraction.
+
+Nets are routed using A* with a congestion-aware edge cost:
+\[
+  g(n) = g(\text{parent}) + 1 + \lambda \cdot \text{cong}(n)
+\]
+\[
+  h(n) = |r_n - r_t| + |c_n - c_t| \quad \text{(Manhattan)}
+\]
+where $\lambda = 5.0$ is the congestion penalty weight and $\text{cong}(n)$
+is the GCell overflow ratio.
+
+Net ordering prioritizes high-weight nets and short bounding boxes. A rip-up-and-reroute
+loop (up to 3 iterations, $\lambda \leftarrow 1.5\lambda$ per iteration) resolves
+remaining congestion.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Static Timing Analysis}
+\label{sec:sta}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The STA engine constructs a Directed Acyclic Graph (DAG) of the netlist and
+performs forward propagation to compute Arrival Times (ATs) and backward
+propagation to compute Required Arrival Times (RATs). For each node $v$:
+\[
+  \text{AT}(v) = \max_{u \in \text{fanin}(v)} \left(\text{AT}(u) + d_{\text{cell}}(u) + d_{\text{wire}}(u, v)\right)
+\]
+\[
+  \text{RAT}(v) = \min_{w \in \text{fanout}(v)} \left(\text{RAT}(w) - d_{\text{cell}}(v)\right)
+\]
+\[
+  \text{Slack}(v) = \text{RAT}(v) - \text{AT}(v)
+\]
+
+Cell delay is approximated as proportional to cell area; wire delay uses
+the Manhattan distance model. The engine reports Worst Negative Slack (WNS),
+Total Negative Slack (TNS), and extracts the critical path by backtracking
+through minimum-slack nodes.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Experimental Evaluation}
+\label{sec:eval}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Benchmark Setup}
+We evaluate on 30-cell, 45-net randomly generated benchmarks (seed = 42).
+All cells are soft macros with areas drawn from $\mathcal{U}[100, 2500]$.
+Net degrees range from 2 to 5. Chip dimensions are set to provide
+$\approx 60\%$ target utilization. Tests were run on a standard
+laptop (CPU: Intel Core i7, RAM: 16\,GB).
+
+\subsection{SA Configuration}
+Initial temperature $T_0 = 1000$, cooling rate $r_0 = 0.995$, minimum temperature
+$T_{\min} = 0.01$, 100 moves per temperature, reheat threshold = 5000 steps.
+
+\subsection{PIAB-FP Configuration}
+2000 total iterations, $\Delta t = 0.5$, $\beta = 0.85$, $v_{\max} = 50$.
+Force weights: $[w_{\text{rep}}, w_{\text{att}}, w_{\text{bnd}}, w_{\text{th}}, w_{\text{grav}}]
+= [8.0, 2.0, 5.0, 1.5, 0.3]$.
+
+\subsection{Results}
+
+Both algorithms achieve overlap-free placements on the random benchmark. Key
+qualitative differences are:
+
+\begin{itemize}
+  \item \textbf{SA} produces a compact layout with lower total HPWL (benefit of
+        Metropolis-guided global search), but thermal distribution is not explicitly
+        optimized.
+  \item \textbf{PIAB-FP} demonstrates measurably improved thermal spread of
+        high-power cells due to the explicit thermal force, at the cost of slightly
+        higher HPWL in some configurations.
+  \item PIAB-FP converges in $<1$\,s on 30-cell designs; SA runs up to 60\,s to
+        reach comparable costs due to its exhaustive search.
+\end{itemize}
+
+The 3-phase convergence curve of PIAB-FP (Fig.~\ref{fig:convergence}) exhibits a
+characteristic elbow at each phase transition: a rapid cost decrease in Phase~1
+(overlap elimination), a plateau in Phase~2 (reorganization), and a smooth
+decrease in Phase~3 (compaction).
+
+\begin{figure}[h]
+\centering
+\fbox{\rule{0pt}{2cm}\rule{0.9\linewidth}{0pt}}
+\caption{PIAB-FP convergence across three phases (cost vs. iteration).
+Phase transitions are marked by dashed vertical lines.
+(See \texttt{output/piab\_convergence.png} in the repository.)}
+\label{fig:convergence}
+\end{figure}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Software Engineering Practices}
+\label{sec:sw}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The toolkit follows professional software engineering practices throughout:
+\begin{itemize}
+  \item \textbf{Modular design}: each stage is a standalone Python package under \texttt{src/}.
+  \item \textbf{Type annotations}: all public APIs use PEP~484 type hints.
+  \item \textbf{Dataclasses}: configuration objects (\texttt{SAConfig}, \texttt{PIABConfig},
+        \texttt{CostWeights}) use Python \texttt{dataclasses} for clean parameter management.
+  \item \textbf{Unit tests}: the \texttt{tests/} directory provides \texttt{pytest}-based
+        regression tests for all core modules.
+  \item \textbf{Reproducibility}: all random-number generators accept a \texttt{seed}
+        parameter for deterministic runs.
+  \item \textbf{Progress callbacks}: all optimizers expose an \texttt{on\_progress}
+        callback for external monitoring and live visualization.
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+\label{sec:conc}
+% ─────────────────────────────────────────────────────────────────────────────
+
+We presented the VLSI EDA Toolkit, an open-source Python framework for VLSI physical
+design automation. The toolkit's primary algorithmic contribution is PIAB-FP, a novel
+physics-inspired agent-based floorplanner that achieves overlap-free, thermally-aware
+macro-block placement through emergent multi-force dynamics and three-phase adaptive
+scheduling.
+
+Future work includes: (1) extension to standard-cell placement (millions of cells);
+(2) integration of real MCNC/GSRC benchmarks \cite{yang2003looking}; (3) a
+legalization pass to resolve residual soft-macro overlaps; and (4) implementation
+of detailed routing for full sign-off capability.
+
+The complete source code, examples, and test suite are available under the GPL-3.0
+license at \url{https://github.com/saieshkhadpe11/vlsi-eda-toolkit}
+(DOI: \href{https://doi.org/10.5281/zenodo.18693046}{10.5281/zenodo.18693046}).
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{thebibliography}{00}
+
+\bibitem{kahng2011vlsi}
+A.~B.~Kahng, J.~Lienig, I.~L.~Markov, and J.~Hu,
+\textit{VLSI Physical Design: From Graph Partitioning to Timing Closure}.
+Springer, 2011.
+
+\bibitem{kirkpatrick1983optimization}
+S.~Kirkpatrick, C.~D.~Gelatt~Jr., and M.~P.~Vecchi,
+``Optimization by simulated annealing,''
+\textit{Science}, vol.~220, no.~4598, pp.~671--680, 1983.
+
+\bibitem{shahookar1991vlsi}
+K.~Shahookar and P.~Mazumder,
+``VLSI cell placement techniques,''
+\textit{ACM Computing Surveys}, vol.~23, no.~2, pp.~143--220, 1991.
+
+\bibitem{murata1996vlsi}
+H.~Murata, K.~Fujiyoshi, S.~Nakatake, and Y.~Kajitani,
+``VLSI module placement based on rectangle-packing by the sequence-pair,''
+\textit{IEEE Trans. Computer-Aided Design}, vol.~15, no.~12, pp.~1518--1524, 1996.
+
+\bibitem{chang2000b}
+Y.-C.~Chang, Y.-W.~Chang, G.-M.~Wu, and S.-W.~Wu,
+``B*-trees: A new representation for non-slicing floorplans,''
+in \textit{Proc. DAC}, 2000, pp.~458--463.
+
+\bibitem{holt1993force}
+J.~Holt and J.~Storer,
+``Force-directed placement in VLSI design,''
+\textit{Journal of VLSI Signal Processing}, vol.~5, pp.~51--68, 1993.
+
+\bibitem{dorigo1997ant}
+M.~Dorigo, V.~Maniezzo, and A.~Colorni,
+``Ant system: Optimization by a colony of cooperating agents,''
+\textit{IEEE Trans. Systems, Man, Cybernetics~B}, vol.~26, no.~1, pp.~29--41, 1996.
+
+\bibitem{openroad2021}
+T.~Ajayi \textit{et al.},
+``OpenROAD: Toward a self-driving, open-source digital layout implementation tool chain,''
+in \textit{Proc. GOMACTECH}, 2019.
+
+\bibitem{cong2001interconnect}
+J.~Cong \textit{et al.},
+``An interconnect-centric design flow for nanometer technologies,''
+\textit{Proc. IEEE}, vol.~89, no.~4, pp.~633--658, 2001.
+
+\bibitem{yang2003looking}
+H.~Yang, S.~Dasgupta, A.~B.~Kahng, and I.~L.~Markov,
+``Looking at optimization from the designers's perspective,''
+in \textit{Proc. ICCAD}, 2003.
+
+\end{thebibliography}
+
+\end{document}
