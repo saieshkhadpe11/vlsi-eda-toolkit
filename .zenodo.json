@@ -7,7 +7,8 @@
   "creators": [
     {
       "name": "Khadpe, Saiesh",
-      "affiliation": ""
+      "affiliation": "",
+      "orcid": "0009-0003-7524-9927"
     }
   ],
   "version": "1.0.0",
@@ -33,6 +34,11 @@
       "identifier": "https://github.com/saieshkhadpe11/vlsi-eda-toolkit",
       "relation": "isSupplementTo",
       "scheme": "url"
+    },
+    {
+      "identifier": "10.5281/zenodo.18693046",
+      "relation": "isIdenticalTo",
+      "scheme": "doi"
     }
   ],
   "language": "eng",

@@ -6,6 +6,7 @@ A comprehensive, from-scratch implementation of core EDA (Electronic Design Auto
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18693046.svg)](https://doi.org/10.5281/zenodo.18693046)
 
 ---
 
@@ -204,6 +205,8 @@ This project demonstrates understanding of:
 
 ---
 
+---
+
 ## 📖 References
 
 1. Shahookar & Mazumder, "VLSI Cell Placement Techniques," *ACM Computing Surveys*, 1991
@@ -213,7 +216,34 @@ This project demonstrates understanding of:
 
 ---
 
+## 🔖 Cite This Project
+
+If you use this toolkit in your research or coursework, please cite it using the DOI:
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18693046.svg)](https://doi.org/10.5281/zenodo.18693046)
+
+**BibTeX:**
+
+```bibtex
+@software{khadpe_2026_vlsi_eda_toolkit,
+  author       = {Khadpe, Saiesh},
+  title        = {VLSI EDA Toolkit: A Python-Based Physical Design Automation Framework},
+  year         = {2026},
+  publisher    = {Zenodo},
+  version      = {v1.0.0},
+  doi          = {10.5281/zenodo.18693046},
+  url          = {https://doi.org/10.5281/zenodo.18693046}
+}
+```
+
+**APA:**
+
+> Khadpe, S. (2026). *VLSI EDA Toolkit: A Python-Based Physical Design Automation Framework* (v1.0.0) [Software]. Zenodo. https://doi.org/10.5281/zenodo.18693046
+
+---
+
 ## 📜 License
+
 
 GPL-3.0 License — see [LICENSE](LICENSE) for details. This means you can use, study, and modify this code, but any derivative work must also be open-sourced under the same license and must credit the original author.
 

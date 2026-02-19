@@ -13,9 +13,10 @@ authors:
   - family-names: "Khadpe"
     given-names: "Saiesh"
     alias: "saieshkhadpe11"
-    orcid: ""  # Add your ORCID iD here if you have one: https://orcid.org
+    orcid: "https://orcid.org/0009-0003-7524-9927"
 version: "1.0.0"
 date-released: "2026-02-19"
+doi: "10.5281/zenodo.18693046"
 license: GPL-3.0
 url: "https://github.com/saieshkhadpe11/vlsi-eda-toolkit"
 repository-code: "https://github.com/saieshkhadpe11/vlsi-eda-toolkit"
