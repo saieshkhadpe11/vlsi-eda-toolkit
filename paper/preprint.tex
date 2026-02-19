@@ -6,6 +6,7 @@
 \usepackage{algorithmic}
 \usepackage{algorithm}
 \usepackage{graphicx}
+\graphicspath{{./}}
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{url}
@@ -362,13 +363,14 @@ Force weights: $[w_{\text{rep}}, w_{\text{att}}, w_{\text{bnd}}, w_{\text{th}}, 
 
 \subsection{Results}
 
-Both algorithms achieve overlap-free placements on the random benchmark. Key
-qualitative differences are:
+Both algorithms achieve overlap-free placements on the random benchmark.
+Fig.~\ref{fig:sa_floorplan} and Fig.~\ref{fig:piab_floorplan} show the final
+placement results of SA and PIAB-FP respectively. Key qualitative differences are:
 
 \begin{itemize}
   \item \textbf{SA} produces a compact layout with lower total HPWL (benefit of
-        Metropolis-guided global search), but thermal distribution is not explicitly
-        optimized.
+        Metropolis-guided global search; see Fig.~\ref{fig:sa_floorplan}), but thermal
+        distribution is not explicitly optimized (Fig.~\ref{fig:thermal}).
   \item \textbf{PIAB-FP} demonstrates measurably improved thermal spread of
         high-power cells due to the explicit thermal force, at the cost of slightly
         higher HPWL in some configurations.
@@ -376,19 +378,75 @@ qualitative differences are:
         reach comparable costs due to its exhaustive search.
 \end{itemize}
 
-The 3-phase convergence curve of PIAB-FP (Fig.~\ref{fig:convergence}) exhibits a
-characteristic elbow at each phase transition: a rapid cost decrease in Phase~1
-(overlap elimination), a plateau in Phase~2 (reorganization), and a smooth
-decrease in Phase~3 (compaction).
+The 3-phase convergence curve of PIAB-FP (Fig.~\ref{fig:piab_convergence}) exhibits a
+characteristic elbow at each phase transition, while the SA convergence
+(Fig.~\ref{fig:sa_convergence}) shows temperature-driven exploration with visible
+reheat spikes. The routing congestion map is shown in Fig.~\ref{fig:congestion}.
+Fig.~\ref{fig:dashboard} presents the full 6-panel design dashboard summarizing
+all metrics from a complete end-to-end run.
 
 \begin{figure}[h]
 \centering
-\fbox{\rule{0pt}{2cm}\rule{0.9\linewidth}{0pt}}
-\caption{PIAB-FP convergence across three phases (cost vs. iteration).
-Phase transitions are marked by dashed vertical lines.
-(See \texttt{output/piab\_convergence.png} in the repository.)}
-\label{fig:convergence}
+\includegraphics[width=0.95\linewidth]{sa_floorplan.png}
+\caption{SA floorplan result: placed macro-blocks with cell labels, net
+connections (grey lines), and chip outline. The SA optimizer balances
+HPWL and overlap through Metropolis-guided search.}
+\label{fig:sa_floorplan}
 \end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{piab_floorplan.png}
+\caption{PIAB-FP floorplan result: agent-based placement with five physical
+forces. Cells are naturally spread across the chip with minimal overlap,
+emerging from purely local force interactions.}
+\label{fig:piab_floorplan}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{sa_convergence.png}
+\caption{SA convergence curve: cost vs. iteration with temperature overlay.
+Reheat events are visible as upward temperature spikes, allowing escape
+from local minima.}
+\label{fig:sa_convergence}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{piab_convergence.png}
+\caption{PIAB-FP convergence across three phases (cost vs. iteration).
+Phase~1 (Coarse) rapidly eliminates gross overlaps; Phase~2 (Medium)
+reorganizes by connectivity; Phase~3 (Fine) compacts the layout.}
+\label{fig:piab_convergence}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{sa_thermal.png}
+\caption{Thermal heatmap after SA placement: Gaussian heat spreading from
+power-dense macro-blocks. Red zones indicate thermal hotspots that PIAB-FP's
+thermal force explicitly works to disperse.}
+\label{fig:thermal}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{congestion.png}
+\caption{Global routing congestion map: GCell congestion ratios on the 20x20
+routing grid after A* routing with rip-up-and-reroute. Red cells indicate
+routing overflow regions.}
+\label{fig:congestion}
+\end{figure}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.97\textwidth]{dashboard.png}
+\caption{Full-flow design dashboard: 6-panel summary showing (top-left to
+bottom-right) floorplan, thermal map, design metrics table, SA convergence
+curve, routing congestion map, and cell area distribution histogram.}
+\label{fig:dashboard}
+\end{figure*}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Software Engineering Practices}
